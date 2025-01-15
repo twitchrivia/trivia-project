@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitchrivia Overlay</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #a075e8; /* Twitch purple */
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .top-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #a075e8;
+            border-radius: 10px;
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 5px;
+            margin-top: 5px;
+        }
+
+        .logo {
+            margin-right: 15px;
+        }
+
+        .logo img {
+            height: 165px;
+        }
+
+        .announcements {
+            text-align: left;
+        }
+
+        .question {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 5px;
+            border-radius: 10px;
+            width: 76.5%;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .flex-container {
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+        }
+
+        .leaderboard,
+        .streaker {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 10px;
+            width: 45%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .leaderboard h2,
+        .streaker h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
+        }
+
+        .leaderboard ul,
+        .streaker ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+            width: 100%;
+        }
+
+        .leaderboard li,
+        .streaker li {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .streak-info {
+            margin-top: 5px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .streak-info ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .streak-info li {
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-section">
+        <div class="logo">
+            <img src="/static/logo1.png" alt="Twitchrivia Logo">
+        </div>
+        <div class="announcements">
+            <h1>Welcome to Twitchrivia!</h1>
+        </div>
+    </div>
+
+    <div class="question">
+        <h2>Current Question:</h2>
+        <p>What is the capital of France?</p>
+    </div>
+
+    <div class="flex-container">
+        <div class="leaderboard">
+            <h2>Leaderboard</h2>
+            <ul>
+                <li><span>User1 🥇</span><span>10 points</span></li>
+                <li><span>User2</span><span>8 points</span></li>
+                <li><span>User3</span><span>7 points</span></li>
+                <li><span>User4</span><span>8 points</span></li>
+                <li><span>User5</span><span>7 points</span></li>
+                <li><span>User6</span><span>8 points</span></li>
+                <li><span>User7</span><span>7 points</span></li>
+                <li><span>User8</span><span>8 points</span></li>
+                <li><span>User9</span><span>7 points</span></li>
+            </ul>
+        </div>
+
+        <div class="streaker">
+            <h2>Top Streaker</h2>
+            <ul>
+                <li><span>User1 🥇</span><span>5 streak</span></li>
+            </ul>
+
+            <div class="streak-info">
+                <h3>Streak Badges</h3>
+                <ul>
+                    <li>⭐: 5 Consecutive Correct Answers</li>
+                    <li>✨: 10 Consecutive Correct Answers</li>
+                    <li>👑: 15 Consecutive Correct Answers</li>
+                    <li>💎: 20 Consecutive Correct Answers</li>
+                </ul>
+                <p>Streaks are broken by incorrect answers but are not affected by skipping questions.</p>
+            </div>
+        </div>
+    </div>
+<script>
+    let currentLeaderboardOrder = [];
+
+    async function fetchData() {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/data");
+            const data = await response.json();
+
+            console.log("Fetched Data:", data); // Log all data to the console
+
+            // Update Announcements
+            const announcementsDiv = document.querySelector(".announcements");
+            announcementsDiv.innerHTML = data.announcements;
+
+            // Update Current Question
+            const questionDiv = document.querySelector(".question");
+            questionDiv.innerHTML = `
+                <h2>Current Question:</h2>
+                <p>${data.current_question.question}</p>
+                <p>Options: ${data.current_question.options.join(", ")}</p>
+            `;
+
+            // Update Leaderboard with Animation
+            const leaderboardDiv = document.querySelector(".leaderboard ul");
+            const newLeaderboardOrder = data.leaderboard.map(user => user.name);
+
+            // Animate Leaderboard
+            animateLeaderboard(leaderboardDiv, data.leaderboard, newLeaderboardOrder);
+
+            // Update Top Streakers
+            const topStreakerDiv = document.querySelector(".streaker ul");
+            topStreakerDiv.innerHTML = "";
+            if (data.top_streakers.length > 0 && data.top_streakers[0].name !== "No current streaks") {
+                data.top_streakers.forEach(streaker => {
+                    topStreakerDiv.innerHTML += `
+                        <li>
+                            <span>${streaker.badges.join("")} ${streaker.name}</span>
+                            <span>${streaker.streak} streak</span>
+                        </li>
+                    `;
+                });
+            } else {
+                topStreakerDiv.innerHTML = "<li>No current streaks</li>";
+            }
+
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }
+
+    function animateLeaderboard(leaderboardDiv, leaderboardData, newOrder) {
+        const currentOrderMap = {};
+        leaderboardDiv.querySelectorAll("li").forEach((li, index) => {
+            const username = li.dataset.username;
+            currentOrderMap[username] = index;
+        });
+
+        leaderboardData.forEach((user, newIndex) => {
+            const existingLi = leaderboardDiv.querySelector(`li[data-username="${user.name}"]`);
+            if (existingLi) {
+                const currentIndex = currentOrderMap[user.name];
+                const offset = (newIndex - currentIndex) * existingLi.offsetHeight;
+                existingLi.style.transition = "transform 1s ease";
+                existingLi.style.transform = `translateY(${offset}px)`;
+            }
+        });
+
+        setTimeout(() => {
+            leaderboardDiv.innerHTML = "";
+            leaderboardData.forEach(user => {
+                leaderboardDiv.innerHTML += `
+                    <li data-username="${user.name}">
+                        <span>${user.badges.join("")} ${user.name}</span>
+                        <span>${user.score} points</span>
+                    </li>
+                `;
+            });
+        }, 500);
+    }
+
+    // Fetch data every 2 seconds
+    setInterval(fetchData, 2000);
+    fetchData();
+</script>
+
+</body>
+</html>

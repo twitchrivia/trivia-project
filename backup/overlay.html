@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitchrivia Overlay</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #a075e8; /* Twitch purple */
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .top-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #a075e8;
+            border-radius: 10px;
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            margin-right: 15px;
+        }
+
+        .logo img {
+            height: 150px;
+        }
+
+        .announcements {
+            text-align: left;
+        }
+
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            width: 90%;
+            height: 70%; /* Adjust height to balance layout */
+        }
+
+        .side-section {
+            display: flex;
+            flex-direction: column;
+            width: 25%;
+            height: 100%;
+            margin-right: 10px;
+        }
+
+        .top-streaker,
+        .leaderboard {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .top-streaker {
+            height: 15%; /* Smaller section for top streaker */
+        }
+
+        .leaderboard {
+            height: 80%; /* Remaining height for leaderboard */
+            overflow-y: auto;
+        }
+        .leaderboard h2,
+        .top-streaker h2 {
+            padding: 0;
+            margin: 6px;
+	}
+        .leaderboard ul,
+        .top-streaker ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+            width: 100%;
+        }
+
+        .leaderboard li,
+        .top-streaker li {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .question-section {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            width: 75%;
+            height: 90%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .question {
+            text-align: center;
+            margin-top: 50px;
+            margin-bottom: 20px;
+        }
+
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .answer-button {
+            background-color: #805ad5;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            padding: 50px;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .answer-button:hover {
+            background-color: #9c7df5;
+        }
+    .answer-button.correct {
+        background-color: #4caf50; /* Green for correct */
+    }
+
+    .answer-button.incorrect {
+        background-color: #f44336; /* Red for incorrect */
+    }
+        .answer-button.disabled {
+            background-color: #666; /* Grey for disabled */
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-section">
+        <div class="logo">
+            <img src="logo1.png" alt="Twitchrivia Logo">
+        </div>
+        <div class="announcements">
+            <h1>Welcome to Twitchrivia!</h1>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="side-section">
+            <div class="top-streaker">
+                <h2>Top Streaker</h2>
+                <ul>
+                    <li><span>User1 🥇</span><span>5 streak</span></li>
+                </ul>
+            </div>
+            <div class="leaderboard">
+                <h2>Leaderboard</h2>
+                <ul>
+                    <li><span>User1 🥇</span><span>10 points</span></li>
+                    <li><span>User2</span><span>8 points</span></li>
+                    <li><span>User3</span><span>7 points</span></li>
+                    <li><span>User4</span><span>6 points</span></li>
+                    <li><span>User5</span><span>5 points</span></li>
+                    <li><span>User6</span><span>4 points</span></li>
+                    <li><span>User7</span><span>3 points</span></li>
+                    <li><span>User8</span><span>2 points</span></li>
+                    <li><span>User9</span><span>2 point</span></li>
+                    <li><span>User10</span><span>0 points</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="question-section">
+            <div class="question">
+                <h2>What is the capital of France?</h2>
+            </div>
+            <div class="answers">
+                <button class="answer-button" onclick="submitAnswer(this, 'Paris')">Paris</button>
+                <button class="answer-button" onclick="submitAnswer(this, 'London')">London</button>
+                <button class="answer-button" onclick="submitAnswer(this, 'Berlin')">Berlin</button>
+                <button class="answer-button" onclick="submitAnswer(this, 'Madrid')">Madrid</button>
+            </div>
+        </div>
+    </div>
+<script>
+    let answered = false;
+
+    function submitAnswer(button, selectedAnswer) {
+        if (answered) return; // Prevent multiple submissions
+        answered = true;
+
+        // Disable all buttons
+        document.querySelectorAll('.answer-button').forEach(btn => {
+            btn.classList.add('disabled');
+            btn.disabled = true;
+        });
+
+        // Mock backend response
+        const correctAnswer = "Paris"; // Replace this dynamically later
+        if (selectedAnswer === correctAnswer) {
+            button.classList.add('correct');
+            console.log("Correct answer selected:", selectedAnswer);
+        } else {
+            button.classList.add('incorrect');
+            console.log("Incorrect answer selected:", selectedAnswer);
+        }
+    }
+</script>
+</body>
+</html>

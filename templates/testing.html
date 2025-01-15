@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitchrivia Overlay</title>
+<style>
+.box
+{
+  width: 300px;
+  margin: 0 auto;
+  padding: 2px;
+  background-color: #eaab00; /* gold */
+  /* Single pixel data uri image http://jsfiddle.net/LPxrT/ 
+  /* background-image: gold, gold, white */
+
+  background-repeat: no-repeat;
+  background-size: 0 2px, 0 100%, 0% 2px;
+  background-position: top center, top center, bottom center;
+  -webkit-animation: drawBorderFromCenter 4s;
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes drawBorderFromCenter {
+    0% {
+      background-size: 0 2px, 0 0, 100% 100%;
+    }
+    20% {
+      background-size: 100% 2px, 100% 0, 100% 100%;
+    }
+    66%
+    {
+      background-size: 100% 2px, 100% 98%, 100% 100%;
+    }
+    99%
+    {
+      background-size: 100% 2px, 100% 98%, 0 2px;
+    }
+}
+
+
+
+.content
+{
+  background: white;
+  padding: 2em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="content">
+    <h1>This is the box you should be thinking outside of</h1> 
+  </div>
+</div>
+</body>
